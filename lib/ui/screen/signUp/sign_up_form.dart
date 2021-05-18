@@ -4,6 +4,9 @@ import 'sign_up.dart';
 import 'package:formz/formz.dart';
 
 class SignUpForm extends StatelessWidget {
+
+
+
   const SignUpForm({Key? key}) : super(key: key);
 
   @override

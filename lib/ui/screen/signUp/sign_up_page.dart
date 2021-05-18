@@ -6,6 +6,8 @@ import 'sign_up.dart';
 class SignUpPage extends StatelessWidget {
   const SignUpPage({Key? key}) : super(key: key);
 
+  static const routeName = '/sign-up-page';
+
   static Route route() {
     return MaterialPageRoute<void>(builder: (_) => const SignUpPage());
   }

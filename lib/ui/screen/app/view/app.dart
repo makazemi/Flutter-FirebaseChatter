@@ -1,9 +1,14 @@
-import 'package:flow_builder/flow_builder.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_firebase_chatter/repository/authentication_repository.dart';
 import 'package:flutter_firebase_chatter/ui/screen/app/app.dart';
 import 'package:flutter_firebase_chatter/theme.dart';
+import 'package:flutter_firebase_chatter/ui/screen/home/home.dart';
+import 'package:flutter_firebase_chatter/ui/screen/login/login.dart';
+import 'package:flutter_firebase_chatter/ui/screen/signUp/sign_up.dart';
+import 'package:flutter_firebase_chatter/ui/screen/splash/splash_page.dart';
 
 class App extends StatelessWidget {
   const App({
@@ -22,23 +27,55 @@ class App extends StatelessWidget {
         create: (_) => AppBloc(
           authenticationRepository: _authenticationRepository,
         ),
-        child: const AppView(),
+        child: AppView(),
       ),
     );
   }
 }
 
-class AppView extends StatelessWidget {
-  const AppView({Key? key}) : super(key: key);
 
+class AppView extends StatefulWidget {
+  @override
+  _AppViewState createState() => _AppViewState();
+}
+
+class _AppViewState extends State<AppView> {
+
+  final _navigatorKey = GlobalKey<NavigatorState>();
+
+  NavigatorState get _navigator => _navigatorKey.currentState!;
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       theme: theme,
-      home: FlowBuilder<AppStatus>(
-        state: context.select((AppBloc bloc) => bloc.state.status),
-        onGeneratePages: onGenerateAppViewPages,
-      ),
+      builder: (ctx,child){
+        return BlocListener<AppBloc,AppState>(
+          listener: (ctx, state) {
+            switch(state.status){
+              case AppStatus.authenticated:
+                log('authenticated');
+                _navigator.pushAndRemoveUntil<void>(
+                  HomePage.route(),
+                      (route) => false,
+                );
+                break;
+              case AppStatus.unauthenticated:
+                log('unauthenticated');
+                _navigator.pushAndRemoveUntil<void>(
+                  LoginPage.route(),
+                      (route) => false,
+                );
+                break;
+              default:
+                break;
+            }
+          },
+            child: child
+        );
+      },
+      onGenerateRoute: (_) => SplashPage.route(),
     );
   }
 }
